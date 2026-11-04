@@ -1,0 +1,23 @@
+{
+  "name": "staffing-client-finder",
+  "version": "1.0.0",
+  "description": "An AI agent finds clients for a staffing or recruiting agency through Evaboot: companies hiring now in Sales Navigator, their hiring managers and talent leaders with verified emails, who to contact first, and a first message grounded in the hiring signal.",
+  "author": {
+    "name": "Evaboot",
+    "url": "https://evaboot.com"
+  },
+  "homepage": "https://github.com/evaboot-labs/staffing-client-finder",
+  "repository": "https://github.com/evaboot-labs/staffing-client-finder",
+  "license": "MIT",
+  "privacyPolicyUrl": "https://evaboot.com/privacy-policy",
+  "keywords": [
+    "staffing-agency",
+    "recruiting",
+    "business-development",
+    "sales-navigator",
+    "evaboot",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}
