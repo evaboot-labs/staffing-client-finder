@@ -1,0 +1,17 @@
+{
+  "name": "evaboot-labs-staffing-client-finder",
+  "owner": {
+    "name": "Evaboot",
+    "url": "https://evaboot.com"
+  },
+  "metadata": {
+    "description": "Evaboot's staffing client finder skill for Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "staffing-client-finder",
+      "source": "./",
+      "description": "An AI agent finds clients for a staffing or recruiting agency through Evaboot: companies hiring now in Sales Navigator, their hiring managers and talent leaders with verified emails, who to contact first, and a first message grounded in the hiring signal."
+    }
+  ]
+}

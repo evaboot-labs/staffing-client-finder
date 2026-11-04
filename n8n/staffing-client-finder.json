@@ -1,0 +1,621 @@
+{
+  "name": "Staffing client finder (Evaboot MCP)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "15bdf11e-0325-4599-baa5-a9f2c3738ec1",
+      "name": "Every Monday at 8",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "81403312-83fe-46ce-9fc7-bf94325e04bd",
+      "name": "Run now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "964abbc1-694f-4e2f-a305-fe83d32aba8a",
+              "name": "account_search_url",
+              "type": "string",
+              "value": "https://www.linkedin.com/sales/search/company?query=(filters%3AList((type%3ACOMPANY_HEADCOUNT%2Cvalues%3AList((id%3AD%2Ctext%3A51-200%2CselectionType%3AINCLUDED)%2C(id%3AE%2Ctext%3A201-500%2CselectionType%3AINCLUDED)))%2C(type%3AREGION%2Cvalues%3AList((id%3A101165590%2Ctext%3AUnited%2520Kingdom%2CselectionType%3AINCLUDED)))%2C(type%3AINDUSTRY%2Cvalues%3AList((id%3A4%2Ctext%3ASoftware%2520Development%2CselectionType%3AINCLUDED)))%2C(type%3AJOB_OPPORTUNITIES%2Cvalues%3AList((id%3AJO1%2Ctext%3AHiring%2520on%2520Linkedin%2CselectionType%3AINCLUDED)))%2C(type%3ACOMPANY_HEADCOUNT_GROWTH%2CrangeValue%3A(min%3A10))))"
+            },
+            {
+              "id": "6998e54e-67f7-48dc-b0be-322f5a69ed26",
+              "name": "accounts_per_run",
+              "type": "number",
+              "value": 25
+            },
+            {
+              "id": "f498f7e1-9b6a-4796-8cad-4b09a2959f1a",
+              "name": "people_per_run",
+              "type": "number",
+              "value": 10
+            },
+            {
+              "id": "e2c8f085-71fa-48fe-918b-c792931b63ce",
+              "name": "leads_tab_url",
+              "type": "string",
+              "value": "PASTE_THE_LEADS_TAB_URL_WITH_GID"
+            },
+            {
+              "id": "3a3a48d2-4b60-4cc4-97c9-8adf73837b5e",
+              "name": "profile",
+              "type": "string",
+              "value": "{\"hiring_manager_titles\": [\"CTO\", \"Chief Technology Officer\", \"VP Engineering\", \"Vice President of Engineering\", \"Head of Engineering\", \"Director of Engineering\", \"Engineering Director\", \"Engineering Manager\"], \"talent_titles\": [\"Head of Talent\", \"Talent Acquisition\", \"Head of People\", \"Head of Recruitment\", \"Recruitment Manager\"], \"hiring_manager_order\": [\"Head of Engineering\", \"VP\", \"Vice President\", \"Director of Engineering\", \"Engineering Director\", \"CTO\", \"Chief Technology Officer\", \"Engineering Manager\"], \"exclude_title_words\": [\"Assistant\", \"Intern\", \"Coordinator\"], \"employee_ranges\": [\"51 to 200\", \"201 to 500\"], \"team_departments\": [\"Engineering\", \"Information Technology\"], \"competitor_words\": [\"recruitment agency\", \"recruiting agency\", \"staffing\", \"recruiter\", \"recruiters\", \"talent marketplace\", \"hiring platform\", \"executive search\", \"headhunt\"], \"desk\": \"software engineers\", \"region\": \"the UK\", \"proof\": \"PASTE ONE LINE OF PROOF, for example the roles you filled for similar teams this year\", \"hiring_manager_message\": \"Hi {first_name}, {company} grew {growth_1y}% in a year and is hiring on LinkedIn, with {team} people in engineering and IT today. Teams growing that fast usually have more open roles than interview slots. We place {desk} in {region}: {proof}. Worth 15 minutes on the role you most need filled?\", \"talent_message\": \"Hi {first_name}, {company} grew {growth_1y}% in a year and is hiring on LinkedIn, with a people team of {hr} covering it. When the hiring plan grows faster than the team, an agency on the hardest roles takes the pressure off. We place {desk} in {region}: {proof}. Open to a short call about the roles that stay open longest?\", \"growth_min\": 10.0}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "41485bb2-9ccb-42d3-b94d-312bc14b6942",
+      "name": "Your settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Your settings').first().json.leads_tab_url }}"
+        },
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Your settings').first().json.leads_tab_url }}"
+        }
+      },
+      "id": "aac9b84a-58e4-4195-8d68-33fa7bb58b39",
+      "name": "People already in your sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        440,
+        100
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://mcp.evaboot.com/mcp",
+        "authentication": "bearerAuth",
+        "tool": {
+          "__rl": true,
+          "mode": "list",
+          "value": "create_account_list_from_search",
+          "cachedResultName": "create_account_list_from_search"
+        },
+        "inputMode": "json",
+        "jsonInput": "={{ JSON.stringify({ search_url: $('Your settings').first().json.account_search_url, max_results: $('Your settings').first().json.accounts_per_run, name: 'Staffing client finder ' + $now.toFormat('yyyy-MM-dd') }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "8a97d021-ff37-4909-b147-3df2f49d1b6e",
+      "name": "Save the accounts",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        100
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "",
+          "name": "Evaboot MCP (Bearer)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "id": "f14773b3-9bb6-4e5e-bece-09694c1753ea",
+      "name": "Wait 30 s (account list)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://mcp.evaboot.com/mcp",
+        "authentication": "bearerAuth",
+        "tool": {
+          "__rl": true,
+          "mode": "list",
+          "value": "get_list_from_search_status",
+          "cachedResultName": "get_list_from_search_status"
+        },
+        "inputMode": "json",
+        "jsonInput": "={{ JSON.stringify({ job_id: $('Save the accounts').first().json.structuredContent.result.job_id }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "99438889-6f18-4e5d-b7a0-cb80a62967e2",
+      "name": "Check the account list",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        100
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "",
+          "name": "Evaboot MCP (Bearer)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dd3c2f17-7518-4fd1-89f4-f4171a7c3da4",
+              "leftValue": "={{ $json.structuredContent.result.status }}",
+              "rightValue": "complete",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "309c5cc4-30cf-4f80-9fb0-2cd0239ad1f2",
+      "name": "Account list done?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Stop instead of waiting forever when the job failed.\nconst r = $json.structuredContent.result;\nif (r.failure_reason || r.error_message || /FAIL|ERROR|CANCEL/i.test(r.status || '')) throw new Error(`The job stopped: ${r.status} ${r.failure_reason || r.error_message || ''}`);\nreturn [$input.first()];\n"
+      },
+      "id": "9444c676-5613-4191-968e-d0f80d0a1f29",
+      "name": "Still running? (account list)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Same as finder.py people-url: the hiring managers and talent leaders inside this week's account list.\nconst P = JSON.parse($('Your settings').first().json.profile);\nconst lists = $json.structuredContent.result.result.lists || [];\nif (!lists.length || !lists[0].list_id) throw new Error('Sales Navigator saved no account: widen the account search.');\nconst q = t => t.includes(' ') ? `\"${t}\"` : t;\nlet titles = '(' + [...P.hiring_manager_titles, ...P.talent_titles].map(q).join(' OR ') + ')';\nif (P.exclude_title_words.length) titles += ' NOT (' + P.exclude_title_words.map(q).join(' OR ') + ')';\nconst enc = s => encodeURIComponent(s).replace(/\\(/g, '%28').replace(/\\)/g, '%29');\nconst query = `(filters:List((type:ACCOUNT_LIST,values:List((id:${lists[0].list_id},selectionType:INCLUDED))),`\n  + `(type:CURRENT_TITLE,values:List((text:${enc(titles)},selectionType:INCLUDED)))))`;\nconst url = 'https://www.linkedin.com/sales/search/people?query=' + encodeURIComponent(query).replace(/%28/g, '(').replace(/%29/g, ')');\nreturn [{ json: { url, accounts: lists[0].count } }];\n"
+      },
+      "id": "518306e8-8fd2-47fc-9e53-f9b712ba8fe4",
+      "name": "People search",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        520
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://mcp.evaboot.com/mcp",
+        "authentication": "bearerAuth",
+        "tool": {
+          "__rl": true,
+          "mode": "list",
+          "value": "export_sn_search_or_list",
+          "cachedResultName": "export_sn_search_or_list"
+        },
+        "inputMode": "json",
+        "jsonInput": "={{ JSON.stringify({ search_url: $json.url, max_results: $('Your settings').first().json.people_per_run, name: 'Staffing client finder people ' + $now.toFormat('yyyy-MM-dd') }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "040de334-069b-419c-8300-286dadfeec9a",
+      "name": "Export the people",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        520
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "",
+          "name": "Evaboot MCP (Bearer)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "id": "f3e8571a-2d84-4419-bda2-134070467b08",
+      "name": "Wait 30 s (people export)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://mcp.evaboot.com/mcp",
+        "authentication": "bearerAuth",
+        "tool": {
+          "__rl": true,
+          "mode": "list",
+          "value": "get_export",
+          "cachedResultName": "get_export"
+        },
+        "inputMode": "json",
+        "jsonInput": "={{ JSON.stringify({ extraction_id: $('Export the people').first().json.structuredContent.result.extraction_id, limit: 1000 }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "96fd9c69-0991-47e8-8290-d2e825e961a4",
+      "name": "Check the people export",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        520
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "",
+          "name": "Evaboot MCP (Bearer)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ab78e2b2-9a13-46b6-9d90-73c59360e517",
+              "leftValue": "={{ $json.structuredContent.result.status }}",
+              "rightValue": "EXECUTED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "231eb0b5-c17b-40b9-8e1d-f4291a3cd39b",
+      "name": "People export done?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Stop instead of waiting forever when the job failed.\nconst r = $json.structuredContent.result;\nif (r.failure_reason || r.error_message || /FAIL|ERROR|CANCEL/i.test(r.status || '')) throw new Error(`The job stopped: ${r.status} ${r.failure_reason || r.error_message || ''}`);\nreturn [$input.first()];\n"
+      },
+      "id": "5b0538f1-f0a8-4962-9f37-d9e79ae98ea8",
+      "name": "Still running? (people export)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Same as finder.py sort: persona, company checks, who to contact first, first message.\nconst P = JSON.parse($('Your settings').first().json.profile);\nconst seen = new Set($('People already in your sheet').all().map(i => String(i.json.LinkedIn || '')).filter(Boolean));\nconst norm = s => ' ' + String(s || '').toLowerCase().replace(/[^a-z0-9&]+/g, ' ').replace(/\\bof\\b/g, ' ').replace(/\\s+/g, ' ').trim() + ' ';\nconst hasAny = (text, words) => words.filter(w => norm(text).includes(norm(w)));\nconst num = v => { const n = parseFloat(String(v ?? '').replace(/[,%]/g, '')); return isNaN(n) ? null : n; };\nconst deps = p => Object.fromEntries(String(p['Department Headcounts'] || '').split('\\n').filter(l => l.includes(':'))\n  .map(l => { const i = l.lastIndexOf(':'); return [l.slice(0, i).trim(), parseInt(l.slice(i + 1)) || 0]; }));\nconst rank = t => { const h = P.hiring_manager_order.map((w, i) => hasAny(t, [w]).length ? i : 99); return Math.min(...h); };\nconst today = $now.toFormat('yyyy-MM-dd');\nconst rows = [];\nfor (const p of $json.structuredContent.result.prospects || []) {\n  const linkedin = p['Linkedin URL Public'] || p['Sales Navigator URL'] || '';\n  if (seen.has(linkedin)) continue;\n  const title = String(p['Current Job'] || '').trim(), d = deps(p);\n  const g1 = num(p['Company Employee Growth 1 Year (%)']), g6 = num(p['Company Employee Growth 6 Months (%)']);\n  const persona = hasAny(title, P.exclude_title_words).length ? '' : hasAny(title, P.talent_titles).length ? 'talent'\n    : hasAny(title, P.hiring_manager_titles).length ? 'hiring manager' : '';\n  const about = `${p['Company Description'] || ''} ${p['Company Specialities'] || ''}`;\n  let why = '';\n  if (!persona) why = 'title is not a hiring manager or a talent leader';\n  else if (P.employee_ranges.length && !P.employee_ranges.includes(p['Company Employee Range'])) why = `company size ${p['Company Employee Range']}, outside your account search`;\n  else if (g1 === null || g1 < P.growth_min) why = `headcount growth ${g1 === null ? 'unknown' : g1 + '%'} in a year, under ${P.growth_min}%`;\n  else if (hasAny(about, P.competitor_words).length) why = `a recruiting business (${hasAny(about, P.competitor_words).join(', ')}), a competitor`;\n  const team = P.team_departments.reduce((s, k) => s + (d[k] || 0), 0), hr = d['Human Resources'] || 0;\n  const tpl = persona === 'hiring manager' ? P.hiring_manager_message : P.talent_message;\n  const message = why ? '' : tpl.replace(/\\{(\\w+)\\}/g, (m, k) => ({ first_name: p['First Name'] || '', company: p['Company Name'] || '',\n    growth_1y: g1 ?? '', growth_6m: g6 ?? '', employees: p['Company Employee Range'] || '', team, hr, desk: P.desk, region: P.region, proof: P.proof })[k] ?? m);\n  rows.push({ Date: today, Keep: why ? 'no' : 'yes', First: '', Persona: persona, Name: p['Full Name'] || '', Title: title,\n    Company: p['Company Name'] || '', 'Growth 1y %': g1 ?? '', 'Eng + IT': team, 'People team': hr,\n    Email: p['Email'] || '', 'Email status': p['Email Status'] || 'not found', LinkedIn: linkedin, Why: why, Message: message,\n    _rank: rank(title) });\n}\nif (!rows.length) throw new Error('No new person in this run: everyone is already in your sheet.');\nfor (const who of ['hiring manager', 'talent']) {\n  const firsts = {};\n  for (const r of rows.filter(r => r.Keep === 'yes' && r.Persona === who)\n    .sort((a, b) => a._rank - b._rank || (a['Email status'] !== 'safe') - (b['Email status'] !== 'safe')))\n    if (!firsts[r.Company]) { firsts[r.Company] = true; r.First = 'yes'; }\n}\nreturn rows.sort((a, b) => (a.Keep !== 'yes') - (b.Keep !== 'yes') || (b['Growth 1y %'] || 0) - (a['Growth 1y %'] || 0)\n  || a.Company.localeCompare(b.Company) || (a.First !== 'yes') - (b.First !== 'yes'))\n  .map(({ _rank, ...r }) => ({ json: r }));\n"
+      },
+      "id": "b7e20a50-0854-4cfd-aac5-9630ca152b78",
+      "name": "Sort the leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Your settings').first().json.leads_tab_url }}"
+        },
+        "options": {},
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Your settings').first().json.leads_tab_url }}"
+        }
+      },
+      "id": "3bbb228c-474e-4cc6-ba10-feab53a9a760",
+      "name": "Add to Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1540,
+        520
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Save the accounts": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 s (account list)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30 s (account list)": {
+      "main": [
+        [
+          {
+            "node": "Check the account list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check the account list": {
+      "main": [
+        [
+          {
+            "node": "Account list done?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Account list done?": {
+      "main": [
+        [
+          {
+            "node": "People search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Still running? (account list)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still running? (account list)": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 s (account list)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Export the people": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 s (people export)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30 s (people export)": {
+      "main": [
+        [
+          {
+            "node": "Check the people export",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check the people export": {
+      "main": [
+        [
+          {
+            "node": "People export done?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "People export done?": {
+      "main": [
+        [
+          {
+            "node": "Sort the leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Still running? (people export)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still running? (people export)": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 s (people export)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday at 8": {
+      "main": [
+        [
+          {
+            "node": "Your settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run now": {
+      "main": [
+        [
+          {
+            "node": "Your settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Your settings": {
+      "main": [
+        [
+          {
+            "node": "People already in your sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "People already in your sheet": {
+      "main": [
+        [
+          {
+            "node": "Save the accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "People search": {
+      "main": [
+        [
+          {
+            "node": "Export the people",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort the leads": {
+      "main": [
+        [
+          {
+            "node": "Add to Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
